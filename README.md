@@ -39,3 +39,19 @@ Implement pagination
 - Keep things clean, simple and fun
 - Use bloc state-management if possible
 - You can fork or clone the repo and share the link (make sure it is public and accessible) 
+
+
+###################################################################################################
+
+Done and Submitted By : Adeniji Adefisayo
+
+## Features and updates implemented
+- Redesigned UI and added detail screen
+- Fixed the crashing of application on launch
+- Implemented internet connection availability check
+- Refactored the codebase 
+- Implemented infinite scrolling
+- handled exceptions 
+- Added bloc unit test
+
+Thank you for the opportunity, I look forward to the next stage of the recruitment.

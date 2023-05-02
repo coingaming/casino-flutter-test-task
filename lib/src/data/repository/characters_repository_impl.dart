@@ -1,38 +1,26 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:math';
 
-import 'package:casino_test/src/data/models/character.dart';
+import 'package:casino_test/src/constants.dart';
 import 'package:casino_test/src/data/repository/characters_repository.dart';
-import 'package:http/http.dart';
+import 'package:casino_test/src/data/services/app_exceptions.dart';
+import 'package:casino_test/src/data/services/base_client.dart';
+import 'package:dartz/dartz.dart';
+
+import '../models/character_with_page_info.dart';
 
 class CharactersRepositoryImpl implements CharactersRepository {
-  final Client client;
+  final DataClient dataClient;
 
-  CharactersRepositoryImpl(this.client);
+  CharactersRepositoryImpl(this.dataClient);
 
   @override
-  Future<List<Character>?> getCharacters(int page) async {
-    var client = Client();
-    final charResult = await client.get(
-      Uri.parse("https://rickandmortyapi.com/api/character/?page=$page"),
-    );
-    final jsonMap = await json.decode(charResult.body) as Map<String, dynamic>;
-
-    final bool showMockedError = Random().nextBool();
-    print("casino test log: showMockedError = $showMockedError");
-    if (showMockedError) {
-      return Future.delayed(
-        const Duration(seconds: 5),
-        () => null,
-      );
+  Future<Either<AppException?, CharactersWithPageInfo>> getCharacters(
+      int page) async {
+    try {
+      final results = await dataClient.get('${Endpoints.character}$page');
+      return right(CharactersWithPageInfo.fromJson(results));
+    } on AppException catch (e) {
+      return left(e);
     }
-    return Future.value(
-      List.of(
-        (jsonMap["results"] as List<dynamic>).map(
-          (value) => Character.fromJson(value),
-        ),
-      ),
-    );
   }
 }

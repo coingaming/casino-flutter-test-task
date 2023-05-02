@@ -1,5 +1,8 @@
-import 'package:casino_test/src/data/models/character.dart';
+import 'package:casino_test/src/data/models/character_with_page_info.dart';
+import 'package:casino_test/src/data/services/app_exceptions.dart';
+import 'package:dartz/dartz.dart';
+
 
 abstract class CharactersRepository {
-  Future<List<Character>?> getCharacters(int page);
+  Future<Either<AppException?, CharactersWithPageInfo>> getCharacters(int page);
 }
