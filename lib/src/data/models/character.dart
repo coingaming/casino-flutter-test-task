@@ -1,9 +1,10 @@
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'character.g.dart';
 
 @JsonSerializable()
-class Character {
+class Character extends Equatable {
   final String name;
   final String image;
   final String status;
@@ -36,4 +37,7 @@ class Character {
       {'type': this.type}
     ];
   }
+
+  @override
+  List<Object?> get props => [name, image, status, gender, species, type];
 }

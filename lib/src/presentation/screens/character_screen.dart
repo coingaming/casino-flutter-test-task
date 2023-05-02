@@ -38,9 +38,9 @@ class _CharactersScreenState extends State<CharactersScreen> {
         },
         builder: (blocContext, state) {
           if (state.status.isLoading && state.characters.isEmpty) {
-            return _loadingWidget(context);
+            return _loadingWidget(blocContext);
           } else {
-            return _successfulWidget(context, state);
+            return _successfulWidget(blocContext, state);
           }
         },
       ),
@@ -92,13 +92,14 @@ class _CharactersScreenState extends State<CharactersScreen> {
           ),
         ),
         if (state.status.isLoading) BottomLoader(),
-        if (state.status.isError && !state.hasReachedMax)
+        if (state.status.isError &&
+            !state.hasReachedMax &&
+            state.characters.isNotEmpty)
           BottomErrorCard(
             title: state.errorMessage?.prefix ?? '',
             description: state.errorMessage?.message ?? '',
-            onPressed: () => context
-                .read<MainPageBloc>()
-                .add(RetryDataFetchOnMainPageEvent(context)),
+            onPressed: () =>
+                context.read<MainPageBloc>().add(GetTestDataOnMainPageEvent()),
           )
       ],
     ));

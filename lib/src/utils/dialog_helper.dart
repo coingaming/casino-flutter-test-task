@@ -8,37 +8,35 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class DialogHelper{
-  static showAppDialog(BuildContext context, MainPageState state){
-     if (Platform.isIOS) {
-              showCupertinoDialog(
-                  barrierDismissible: false,
-                  context: context,
-                  builder: (_) => AppDialog(
-                        title: state.errorMessage?.prefix,
-                        description: state.errorMessage?.message,
-                        onPressed: () {
-                          Navigator.pop(context);
-                          context
-                              .read<MainPageBloc>()
-                              .add(RetryDataFetchOnMainPageEvent(context));
-                        },
-                      ));
-            }
+class DialogHelper {
+  static showAppDialog(BuildContext context, MainPageState state) {
+    if (Platform.isIOS) {
+      showCupertinoDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (_) => AppDialog(
+                title: state.errorMessage?.prefix,
+                description: state.errorMessage?.message,
+                onPressed: () {
+                  Navigator.pop(context);
+                  context
+                      .read<MainPageBloc>()
+                      .add(GetTestDataOnMainPageEvent());
+                },
+              ));
+    }
 
-            if (Platform.isAndroid) {
-              showDialog(
-                  barrierDismissible: false,
-                  context: context,
-                  builder: (_) => AppDialog(
-                      title: state.errorMessage?.prefix,
-                      description: state.errorMessage?.message,
-                      onPressed: () {
-                        Navigator.pop(context);
-                        context
-                            .read<MainPageBloc>()
-                            .add(RetryDataFetchOnMainPageEvent(context));
-                      }));
-            }
+    if (Platform.isAndroid) {
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (_) => AppDialog(
+              title: state.errorMessage?.prefix,
+              description: state.errorMessage?.message,
+              onPressed: () {
+                Navigator.pop(context);
+                context.read<MainPageBloc>().add(GetTestDataOnMainPageEvent());
+              }));
+    }
   }
 }

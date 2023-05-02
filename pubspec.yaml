@@ -22,6 +22,7 @@ dependencies:
   dartz: ^0.10.1
   internet_connection_checker: ^1.0.0+1
   flutter_screenutil: ^5.7.0
+  mocktail: ^0.3.0
 
 
 dev_dependencies:
@@ -30,6 +31,8 @@ dev_dependencies:
   build_runner: ^2.0.0
   json_serializable: ^6.0.0
   flutter_lints: ^1.0.0
+  test: ^1.16.0
+  bloc_test: ^9.0.0
 
 flutter:
   uses-material-design: true

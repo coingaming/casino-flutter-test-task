@@ -12,11 +12,13 @@ extension MainPageStatusX on MainPageStatus {
 }
 
 class MainPageState extends Equatable {
-  const MainPageState( 
-      {this.status = MainPageStatus.initial,
-      this.characters = const <Character>[],
-      this.hasReachedMax = false,
-      this.currentPage = 0, this.errorMessage});
+  const MainPageState({
+    this.status = MainPageStatus.initial,
+    this.characters = const <Character>[],
+    this.hasReachedMax = false,
+    this.currentPage = 0,
+    this.errorMessage,
+  });
 
   final MainPageStatus status;
   final List<Character> characters;
@@ -31,14 +33,13 @@ class MainPageState extends Equatable {
       int? currentPage,
       AppException? errorMessage}) {
     return MainPageState(
-      characters: characters ?? this.characters,
-      status: status ?? this.status,
-      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
-      currentPage: currentPage ?? this.currentPage,
-      errorMessage: errorMessage ?? this.errorMessage
-    );
+        characters: characters ?? this.characters,
+        status: status ?? this.status,
+        hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+        currentPage: currentPage ?? this.currentPage,
+        errorMessage: errorMessage ?? this.errorMessage);
   }
 
   @override
-  List<Object> get props => [status, characters, hasReachedMax];
+  List<Object> get props => [status, characters, hasReachedMax, currentPage];
 }

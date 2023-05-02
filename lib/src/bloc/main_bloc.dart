@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:casino_test/src/data/models/character_with_page_info.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flutter/material.dart';
 import 'package:stream_transform/stream_transform.dart';
 
 import 'package:casino_test/src/data/repository/characters_repository.dart';
@@ -33,17 +32,9 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
       transformer: throttleDroppable(throttleDuration),
     );
 
-    on<RetryDataFetchOnMainPageEvent>(
-      (event, emitter) => _retryFetchingData(event, emitter),
-    );
   }
 
-  Future<void> _retryFetchingData(
-    RetryDataFetchOnMainPageEvent event,
-    Emitter<MainPageState> emit,
-  ) async {
-    await _fetchAndEmit(emit);
-  }
+ 
 
   Future<void> _getDataOnMainPageCasino(
     GetTestDataOnMainPageEvent event,
