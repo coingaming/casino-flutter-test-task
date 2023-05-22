@@ -49,7 +49,6 @@ class _CharactersListScreenState extends State<CharactersListScreen> {
         child: BlocConsumer<MainPageBloc, MainPageState>(
           listener: (context, state) {},
           builder: (context, state) {
-            print(state.runtimeType);
             return switch (state) {
               InitialMainPageState() => const CustomLoadingIndicator(),
               LoadingMainPageState() => const CustomLoadingIndicator(),

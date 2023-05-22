@@ -34,7 +34,7 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
       (event, emitter) => _dataLoadedOnMainPageCasino(event, emitter),
     );
     on<LoadingDataOnMainPageEvent>(
-      (event, emitter) => emitter(LoadingMainPageState()),
+      (event, emitter) => emitter(const LoadingMainPageState()),
     );
 
     on<GetNextPageOnMainPageEvent>(

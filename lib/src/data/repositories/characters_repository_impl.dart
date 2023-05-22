@@ -40,8 +40,6 @@ final class CharactersRepositoryImpl implements CharactersRepository {
     }
   }
 
-  //  Future<List<Character>?> getCharactersByFilter2()
-
   @override
   Future<Result> getNextPage() async {
     try {
