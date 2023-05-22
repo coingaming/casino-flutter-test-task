@@ -9,12 +9,36 @@ abstract class MainPageEvent extends Equatable {
 }
 
 class GetTestDataOnMainPageEvent extends MainPageEvent {
-  final int page;
+  const GetTestDataOnMainPageEvent({
+    this.forceRefresh = false,
+    this.isLoadingNextPage = false,
+    this.filter,
+  });
 
-  const GetTestDataOnMainPageEvent(this.page);
+  final bool forceRefresh;
+  final bool isLoadingNextPage;
+  final String? filter;
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [forceRefresh, isLoadingNextPage, filter];
+}
+
+class GetFilteredDataOnMainPageEvent extends MainPageEvent {
+  const GetFilteredDataOnMainPageEvent({
+    required this.filter,
+    this.isLoadingNextPage = false,
+    this.forceRefresh = false,
+  });
+  final String filter;
+  final bool isLoadingNextPage;
+  final bool forceRefresh;
+
+  @override
+  List<Object?> get props => [
+        filter,
+        isLoadingNextPage,
+        forceRefresh,
+      ];
 }
 
 class LoadingDataOnMainPageEvent extends MainPageEvent {
@@ -25,10 +49,28 @@ class LoadingDataOnMainPageEvent extends MainPageEvent {
 }
 
 class DataLoadedOnMainPageEvent extends MainPageEvent {
+  const DataLoadedOnMainPageEvent(this.characters,
+      {this.isLoadingNextPage = false, this.filter});
   final List<Character>? characters;
-
-  const DataLoadedOnMainPageEvent(this.characters);
+  final bool isLoadingNextPage;
+  final String? filter;
 
   @override
-  List<Object?> get props => [characters];
+  List<Object?> get props => [characters, isLoadingNextPage, filter];
+}
+
+class GetNextPageOnMainPageEvent extends MainPageEvent {
+  const GetNextPageOnMainPageEvent();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class ErrorOnMainPageEvent extends MainPageEvent {
+  const ErrorOnMainPageEvent({required this.error});
+
+  final String error;
+
+  @override
+  List<Object?> get props => [error];
 }
