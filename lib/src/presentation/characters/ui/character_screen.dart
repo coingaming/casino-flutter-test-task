@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:casino_test/src/data/models/character.dart';
 import 'package:casino_test/src/data/repository/characters_repository.dart';
 import 'package:casino_test/src/presentation/characters/bloc/main_bloc.dart';
@@ -104,7 +102,7 @@ class CharactersScreen extends StatelessWidget {
         ),
         if (retry)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+            padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 20),
             child: GestureDetector(
               onTap: ontap,
               child: Container(
@@ -113,6 +111,7 @@ class CharactersScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                     color: Colors.brown,
                     borderRadius: BorderRadius.circular(15)),
+                alignment: Alignment.center,
                 child: Text(
                   'Retry',
                   style: Theme.of(context)
@@ -132,11 +131,6 @@ class CharactersScreen extends StatelessWidget {
 
   Widget _successfulWidget(BuildContext context, SuccessfulMainPageState state,
       List<Character> data) {
-    // if (state.error.isEmpty) {
-    //   log("got here");
-    //   data.addAll(state.characters);
-    // }
-    log("... ${state.characters.length}");
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [

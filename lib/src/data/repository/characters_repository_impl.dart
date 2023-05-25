@@ -19,7 +19,7 @@ class CharactersRepositoryImpl implements CharactersRepository {
         (String url) => url,
         _ => "https://rickandmortyapi.com/api/character",
       };
-      print("Current url $url");
+
       var client = Client();
       final result = await client.get(
         Uri.parse(url),
@@ -27,15 +27,15 @@ class CharactersRepositoryImpl implements CharactersRepository {
 
       if (result.statusCode == 200) {
         final jsonMap = await json.decode(result.body);
-        print("3 rrrr $jsonMap");
+
         final bool showMockedError = Random().nextBool();
         print("casino test log: showMockedError = $showMockedError");
-        // if (showMockedError) {
-        //   return Future.delayed(
-        //     const Duration(seconds: 5),
-        //     () => (response: null, error: 'A Mocked Error just occurred'),
-        //   );
-        // }
+        if (showMockedError) {
+          return Future.delayed(
+            const Duration(seconds: 5),
+            () => (response: null, error: 'A Mocked Error just occurred'),
+          );
+        }
         return Future.value(
             (response: CharacterModel.fromJson(jsonMap), error: null));
       } else {

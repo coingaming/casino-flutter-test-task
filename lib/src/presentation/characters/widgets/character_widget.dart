@@ -24,7 +24,7 @@ class CharacterWidget extends StatelessWidget {
           ],
           borderRadius: BorderRadius.circular(8)),
       child: Row(children: [
-        // NetworkImageWidget(image: image),
+        NetworkImageWidget(image: image),
         const SizedBox(
           width: 20,
           height: 50,

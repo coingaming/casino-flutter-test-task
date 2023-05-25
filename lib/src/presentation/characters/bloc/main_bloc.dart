@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:casino_test/src/data/repository/characters_repository.dart';
 import 'package:casino_test/src/presentation/characters/bloc/main_event.dart';
@@ -50,7 +49,6 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
       emit(ErrorMainPageState(error: res.error!));
       return;
     }
-    log("1 haaaaa ${res.response?.results.length}");
 
     add(DataLoadedOnMainPageEvent(res.response));
   }
@@ -61,14 +59,12 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
   ) async {
     if (state is SuccessfulMainPageState) {
       final currentState = state as SuccessfulMainPageState;
-      log(" hummm ${currentState.loadingMoreData}");
       if (!currentState.loadingMoreData &&
           currentState.nextPageUrl.isNotEmpty) {
         emit(currentState.copyWith(loadingMoreData: true, error: ''));
         final RequestResponse res = await _charactersRepository.getCharacters(
             nextPageUrl: event.nextPageUrl);
 
-        log("2 haaaaa ${res.response?.results.length} ");
         emit(currentState.copyWith(
             loadingMoreData: false,
             nextPageUrl: res.response?.info.next ?? '',
