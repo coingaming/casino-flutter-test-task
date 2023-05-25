@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:casino_test/src/data/repository/characters_repository.dart';
 import 'package:casino_test/src/presentation/characters/bloc/main_event.dart';
 import 'package:casino_test/src/presentation/characters/bloc/main_state.dart';
@@ -44,6 +42,7 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
     GetTestDataOnMainPageEvent event,
     Emitter<MainPageState> emit,
   ) async {
+    add(LoadingDataOnMainPageEvent());
     final RequestResponse res = await _charactersRepository.getCharacters();
     if (res.error != null) {
       emit(ErrorMainPageState(error: res.error!));

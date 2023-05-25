@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:casino_test/src/data/models/character.dart';
 import 'package:casino_test/src/data/models/character_model.dart';
 import 'package:casino_test/src/data/repository/characters_repository.dart';
 import 'package:http/http.dart';
