@@ -87,6 +87,15 @@ class CharacterDetailsWidget extends StatelessWidget {
               character.image,
               width: 100,
               height: 100,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  width: 100,
+                  height: 100,
+                  child: Center(
+                    child: Text("Image not found"),
+                  ),
+                );
+              },
             ),
             GestureDetector(
               onTap: () {

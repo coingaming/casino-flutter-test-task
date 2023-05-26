@@ -39,7 +39,12 @@ class CharacterWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Text(character.name),
+                  Flexible(
+                    child: Text(
+                      character.name,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                   Tooltip(
                     message: character.status,
                     child: _statusWidget[character.status.toLowerCase()]!,
