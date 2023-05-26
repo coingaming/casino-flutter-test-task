@@ -155,7 +155,7 @@ class CharactersScreen extends StatelessWidget {
                   ? _errorWidget(context, "No result for search")
                   : Expanded(
                       child: ListView.builder(
-                        cacheExtent: double.infinity,
+                        cacheExtent: double.maxFinite,
                         controller: _scrollController
                           ..addListener(() {
                             if (_scrollController.offset ==

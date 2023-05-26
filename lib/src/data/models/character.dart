@@ -1,9 +1,10 @@
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'character.g.dart';
 
 @JsonSerializable()
-class Character {
+class Character extends Equatable {
   final int id;
   final String name;
   final String status;
@@ -27,4 +28,10 @@ class Character {
       _$CharacterFromJson(json);
 
   Map<String, dynamic> toJson() => _$CharacterToJson(this);
+
+  @override
+  List<Object?> get props =>
+      [name, image, created, status, url, gender, id, species];
+  @override
+  bool? get stringify => true;
 }

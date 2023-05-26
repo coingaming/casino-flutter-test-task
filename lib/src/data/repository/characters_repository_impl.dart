@@ -45,6 +45,12 @@ class CharactersRepositoryImpl implements CharactersRepository {
         response: null,
         error: "Please check your internet connectivity and try again"
       );
+    } on HandshakeException {
+      return (
+        response: null,
+        error:
+            "Something went wrong processing your request please and try again"
+      );
     } catch (e) {
       return (response: null, error: e.toString());
     }
