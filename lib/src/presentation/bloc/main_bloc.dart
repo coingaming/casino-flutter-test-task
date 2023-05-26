@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:casino_test/src/data/models/character/character_model.dart';
 import 'package:casino_test/src/data/repository/characters_repository.dart';
 import 'package:casino_test/src/presentation/bloc/main_event.dart';
@@ -30,6 +32,12 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
     on<ErrorMainPageEvent>(
       (event, emitter) => _handleError(event.message, emitter),
     );
+    on<LostConnectionEvent>(
+      (event, emitter) {
+        if (!event.hasConnection)
+          emitter(LostConnectionState(event.hasConnection));
+      },
+    );
   }
 
   Future<void> _dataLoadedOnMainPageCasino(
@@ -51,8 +59,11 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
     await _charactersRepository.getCharacters(event.page).then((value) {
       _characters.addAll(value!);
       add(DataLoadedOnMainPageEvent(value));
-    }, onError: (_) {
-      add(ErrorMainPageEvent("Error loading data"));
+    }, onError: (excpetion) {
+      if (excpetion is SocketException)
+        add(ErrorMainPageEvent(excpetion.message));
+      else
+        add(ErrorMainPageEvent("Error loading data"));
     });
   }
 
@@ -71,9 +82,11 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
       _characters.clear();
       _characters.addAll(value);
       emit(SuccessfulMainPageState(_characters, isFetching: false));
-    }, onError: (_) {
-      add(ErrorMainPageEvent("Error loading data"));
-      return;
+    }, onError: (excpetion) {
+      if (excpetion is SocketException)
+        add(ErrorMainPageEvent(excpetion.message));
+      else
+        add(ErrorMainPageEvent("Error loading data"));
     });
   }
 
@@ -95,7 +108,7 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
     });
   }
 
-  _handleError(String error, Emitter<MainPageState> emit) {
+  void _handleError(String error, Emitter<MainPageState> emit) {
     emit(ErrorMainPageState(error));
   }
 }

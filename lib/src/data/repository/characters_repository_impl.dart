@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:casino_test/src/data/models/character/character_model.dart';
 import 'package:casino_test/src/data/models/wrapper_character/wrapper_character_model.dart';
 import 'package:casino_test/src/data/repository/characters_repository.dart';
@@ -57,23 +58,28 @@ class CharactersRepositoryImpl implements CharactersRepository {
 
   Future<List<CharacterModel>?> searchCharacter(String name) async {
     characters.clear();
-    final charResult = await client.get(
-        Uri.parse("https://rickandmortyapi.com/api/character/?name=$name"));
+    try {
+      final charResult = await client.get(
+          Uri.parse("https://rickandmortyapi.com/api/character/?name=$name"));
 
-    if (charResult.statusCode == 200) {
-      if (charResult.body.isNotEmpty) {
-        final Map<String, dynamic> jsonMap =
-            await json.decode(charResult.body) as Map<String, dynamic>;
+      if (charResult.statusCode == 200) {
+        if (charResult.body.isNotEmpty) {
+          final Map<String, dynamic> jsonMap =
+              await json.decode(charResult.body) as Map<String, dynamic>;
 
-        final wrapper = WrapperCharacterModel.fromJson(jsonMap);
+          final wrapper = WrapperCharacterModel.fromJson(jsonMap);
 
-        nextPageUrl = wrapper.info.next ?? "";
-        characters.addAll(wrapper.results);
+          nextPageUrl = wrapper.info.next ?? "";
+          characters.addAll(wrapper.results);
 
-        return Future.value(characters);
-      }
-    } else
-      return Future.value([]);
+          return Future.value(characters);
+        }
+      } else
+        return Future.value([]);
+    } on SocketException {
+      return Future.error("No internet connection");
+    }
+
     return Future.value([]);
   }
 }

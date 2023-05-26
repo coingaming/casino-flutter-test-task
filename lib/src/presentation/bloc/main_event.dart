@@ -57,3 +57,11 @@ class ErrorMainPageEvent extends MainPageEvent {
   @override
   List<Object?> get props => [message];
 }
+
+class LostConnectionEvent extends MainPageEvent {
+  final bool hasConnection;
+  const LostConnectionEvent({required this.hasConnection});
+
+  @override
+  List<Object?> get props => [];
+}

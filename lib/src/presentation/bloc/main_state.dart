@@ -28,6 +28,14 @@ class LoadingMainPageState extends MainPageState {
   List<Object> get props => [isFetching];
 }
 
+class LostConnectionState extends MainPageState {
+  final bool hasConnection;
+  LostConnectionState(this.hasConnection);
+
+  @override
+  List<Object> get props => [isFetching];
+}
+
 class UnSuccessfulMainPageState extends MainPageState {
   UnSuccessfulMainPageState();
 
@@ -36,8 +44,10 @@ class UnSuccessfulMainPageState extends MainPageState {
 }
 
 class SuccessfulMainPageState extends MainPageState {
+  final bool? hasConnection;
   final List<CharacterModel> characters;
-  SuccessfulMainPageState(this.characters, {super.isFetching, super.alert});
+  SuccessfulMainPageState(this.characters,
+      {this.hasConnection, super.isFetching, super.alert});
 
   @override
   List<Object?> get props => [characters, isFetching, alert];

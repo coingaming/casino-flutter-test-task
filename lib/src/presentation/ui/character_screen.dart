@@ -14,6 +14,8 @@ import 'package:casino_test/src/shared/extensions/wrap_widget.dart';
 
 @immutable
 class CharactersScreen extends StatefulWidget {
+  final bool? hasConnection;
+  CharactersScreen({this.hasConnection, Key? key}) : super(key: key);
   @override
   State<CharactersScreen> createState() => _CharactersScreenState();
 }
@@ -28,8 +30,7 @@ class _CharactersScreenState extends State<CharactersScreen> {
   void initState() {
     super.initState();
     _scrollController = ScrollController();
-    _mainPageBloc = MainPageBloc(
-        InitialMainPageState(), GetIt.I.get<CharactersRepository>());
+    _mainPageBloc = context.read<MainPageBloc>();
 
     _scrollController.addListener(_infinityScrollListener);
   }
@@ -56,6 +57,7 @@ class _CharactersScreenState extends State<CharactersScreen> {
       child: Scaffold(
         backgroundColor: AppColors.secondary,
         appBar: CustomAppBarWidget(
+          hasConnection: widget.hasConnection ?? false,
           onSubmitedCallBack: (name) {
             if (name.isNotEmpty) {
               _mainPageBloc.add(SearchCharacterOnMainPageEvent(name));
@@ -74,49 +76,62 @@ class _CharactersScreenState extends State<CharactersScreen> {
           searchController: searchController,
           title: "Search character",
         ),
-        body: BlocProvider<MainPageBloc>(
-          create: (context) {
-            _mainPageBloc..add(const GetTestDataOnMainPageEvent(1));
-            return _mainPageBloc;
+        body: BlocConsumer<MainPageBloc, MainPageState>(
+          bloc: _mainPageBloc,
+          listener: (context, state) {
+            if (state is SuccessfulMainPageState) {
+              if (state.isFetching) {
+                _showLocalSnackBar(context, "Loading more data", 5);
+              } else {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              }
+              if (state.alert == MainPageAlert.empty) {
+                _showLocalSnackBar(context, "No data found", 3);
+              }
+              if (state.hasConnection != null) {
+                if (!state.hasConnection!) {
+                  _showLocalSnackBar(context, "No internet connection", 3);
+                }
+              }
+            }
           },
-          child: BlocConsumer<MainPageBloc, MainPageState>(
-            listener: (context, state) {
-              if (state is SuccessfulMainPageState) {
-                if (state.isFetching) {
-                  _showLocalSnackBar(context, "Loading more data", 5);
-                } else {
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                }
-                if (state.alert == MainPageAlert.empty) {
-                  _showLocalSnackBar(context, "No data found", 3);
-                }
-              }
-            },
-            builder: (blocContext, state) {
-              if (state is LoadingMainPageState) {
-                return _loadingWidget(context);
-              } else if (state is SuccessfulMainPageState) {
-                return _successfulWidget(context, state);
-              } else if (state is ErrorMainPageState) {
-                return Center(
-                    child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("${state.message}"),
-                      _refreshButton(),
-                    ],
-                  ).wrapCardBorder(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height * 0.15),
-                ));
-              }
-              return Center(
-                child: _refreshButton(),
-              );
-            },
-          ),
+          builder: (blocContext, state) {
+            if (state is LoadingMainPageState) {
+              return _loading();
+            } else if (state is SuccessfulMainPageState) {
+              return _successfulWidget(context, state);
+            } else if (state is ErrorMainPageState) {
+              return _refreshBody(state.message);
+            }
+            if (state is LostConnectionState && !widget.hasConnection!) {
+              return _refreshBody("No internet connection");
+            }
+            return Center(
+              child: _refreshButton(),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _loading() {
+    return Center(
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width,
+        height: 150,
+        child: Column(
+          children: [
+            _loadingWidget(context),
+            TextButton(
+                onPressed: () {
+                  _mainPageBloc.add(const GetTestDataOnMainPageEvent(1));
+                },
+                child: Text(
+                  "Refresh",
+                  style: TextStyle(color: Colors.black),
+                )),
+          ],
         ),
       ),
     );
@@ -140,6 +155,14 @@ class _CharactersScreenState extends State<CharactersScreen> {
 
   Widget _successfulWidget(
       BuildContext context, SuccessfulMainPageState state) {
+    if (state.characters.isEmpty) {
+      return Column(
+        children: [
+          Text("No data found"),
+          _refreshButton(),
+        ],
+      );
+    }
     return Container(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
@@ -163,6 +186,19 @@ class _CharactersScreenState extends State<CharactersScreen> {
         ),
       ),
     );
+  }
+
+  Widget _refreshBody(String message) {
+    return Center(
+        child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(message),
+                _refreshButton(),
+              ],
+            )));
   }
 
   Widget _refreshButton() {
