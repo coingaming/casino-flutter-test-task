@@ -3,6 +3,12 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'character_model.g.dart';
 
+enum ECharacterStatus {
+  alive,
+  dead,
+  unknown,
+}
+
 @JsonSerializable()
 class CharacterModel extends Equatable {
   final int id;

@@ -1,14 +1,16 @@
-import 'dart:developer';
-
 import 'package:casino_test/src/data/models/character/character_model.dart';
 import 'package:casino_test/src/data/repository/characters_repository.dart';
 import 'package:casino_test/src/presentation/bloc/main_bloc.dart';
 import 'package:casino_test/src/presentation/bloc/main_event.dart';
 import 'package:casino_test/src/presentation/bloc/main_state.dart';
-import 'package:casino_test/src/presentation/ui/shared/components/custom_appbar.dart';
+import 'package:casino_test/src/presentation/ui/components/character_widget.dart';
+import 'package:casino_test/src/shared/components/alert_widget.dart';
+import 'package:casino_test/src/shared/components/custom_appbar_widget.dart';
+import 'package:casino_test/src/shared/styles/appColors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:casino_test/src/shared/extensions/wrap_widget.dart';
 
 @immutable
 class CharactersScreen extends StatefulWidget {
@@ -40,7 +42,8 @@ class _CharactersScreenState extends State<CharactersScreen> {
 
   void _infinityScrollListener() {
     bool canFetch = _scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent;
+            _scrollController.position.maxScrollExtent &&
+        !_mainPageBloc.state.isFetching;
 
     if (canFetch) {
       _mainPageBloc.add(const GetNextPageOnMainPageEvent(true));
@@ -49,54 +52,71 @@ class _CharactersScreenState extends State<CharactersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        onSubmitedCallBack: (name) =>
-            _mainPageBloc.add(SearchCharacterOnMainPageEvent(name)),
-        onClear: () => _mainPageBloc.add(const GetTestDataOnMainPageEvent(1)),
-        searchController: searchController,
-        title: "Search character",
-      ),
-      body: BlocProvider<MainPageBloc>(
-        create: (context) {
-          _mainPageBloc..add(const GetTestDataOnMainPageEvent(1));
-          return _mainPageBloc;
-        },
-        child: BlocConsumer<MainPageBloc, MainPageState>(
-          listener: (context, state) {
-            if (state is SuccessfulMainPageState) {
-              if (state.isFetching) {
-                final snackBar = SnackBar(
-                    duration: const Duration(seconds: 5),
-                    dismissDirection: DismissDirection.startToEnd,
-                    padding: EdgeInsets.zero,
-                    content: AlertWidget(menssage: "Loading more data"));
-
-                ScaffoldMessenger.of(context).showSnackBar(snackBar);
-              } else {
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              }
-              if (state.alert == MainPageAlert.empty) {
-                final snackBar = SnackBar(
-                    duration: const Duration(seconds: 2),
-                    dismissDirection: DismissDirection.startToEnd,
-                    padding: EdgeInsets.zero,
-                    content: AlertWidget(menssage: "No data found"));
-
-                ScaffoldMessenger.of(context).showSnackBar(snackBar);
-              }
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: AppColors.secondary,
+        appBar: CustomAppBarWidget(
+          onSubmitedCallBack: (name) {
+            if (name.isNotEmpty) {
+              _mainPageBloc.add(SearchCharacterOnMainPageEvent(name));
             }
           },
-          builder: (blocContext, state) {
-            if (state is LoadingMainPageState) {
-              return _loadingWidget(context);
-            } else if (state is SuccessfulMainPageState) {
-              return _successfulWidget(context, state);
-            } else if (state is ErrorMainPageState) {
-              return Center(child: Text("${state.message}"));
+          onClearCallback: (name) {
+            if (_mainPageBloc.state is SuccessfulMainPageState) {
+              if ((_mainPageBloc.state as SuccessfulMainPageState)
+                  .characters
+                  .isEmpty) {
+                _mainPageBloc.add(const GetTestDataOnMainPageEvent(1));
+              }
             }
-            return Container();
+            FocusScope.of(context).unfocus();
           },
+          searchController: searchController,
+          title: "Search character",
+        ),
+        body: BlocProvider<MainPageBloc>(
+          create: (context) {
+            _mainPageBloc..add(const GetTestDataOnMainPageEvent(1));
+            return _mainPageBloc;
+          },
+          child: BlocConsumer<MainPageBloc, MainPageState>(
+            listener: (context, state) {
+              if (state is SuccessfulMainPageState) {
+                if (state.isFetching) {
+                  _showLocalSnackBar(context, "Loading more data", 5);
+                } else {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                }
+                if (state.alert == MainPageAlert.empty) {
+                  _showLocalSnackBar(context, "No data found", 3);
+                }
+              }
+            },
+            builder: (blocContext, state) {
+              if (state is LoadingMainPageState) {
+                return _loadingWidget(context);
+              } else if (state is SuccessfulMainPageState) {
+                return _successfulWidget(context, state);
+              } else if (state is ErrorMainPageState) {
+                return Center(
+                    child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text("${state.message}"),
+                      _refreshButton(),
+                    ],
+                  ).wrapCardBorder(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height * 0.15),
+                ));
+              }
+              return Center(
+                child: _refreshButton(),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -111,7 +131,9 @@ class _CharactersScreenState extends State<CharactersScreen> {
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(12)),
         ),
-        child: const CircularProgressIndicator(),
+        child: const CircularProgressIndicator(
+          color: AppColors.white,
+        ),
       ),
     );
   }
@@ -121,72 +143,42 @@ class _CharactersScreenState extends State<CharactersScreen> {
     return Container(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
-      child: Stack(
-        children: [
-          ListView.builder(
-            controller: _scrollController,
-            itemCount: state.characters.length,
-            itemBuilder: (context, index) {
-              return _characterWidget(context, state.characters[index]);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _characterWidget(BuildContext context, CharacterModel character) {
-    return Container(
-      alignment: Alignment.topLeft,
-      padding: EdgeInsets.all(8),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        width: double.infinity,
-        decoration: ShapeDecoration(
-          color: Color.fromARGB(120, 204, 255, 255),
-          shape: ContinuousRectangleBorder(
-            borderRadius: BorderRadius.circular(32),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      child: RefreshIndicator(
+        onRefresh: () => Future.sync(() {
+          _mainPageBloc.add(const GetTestDataOnMainPageEvent(1));
+        }),
+        child: Stack(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(2.0),
-              child: Text(character.name),
-            ),
-            Image.network(
-              character.image,
-              width: 50,
-              height: 50,
+            ListView.builder(
+              controller: _scrollController,
+              itemCount: state.characters.length,
+              padding: EdgeInsets.only(top: 16, bottom: 16),
+              itemBuilder: (context, index) {
+                return CharacterWidget(
+                  character: state.characters[index],
+                );
+              },
             ),
           ],
         ),
       ),
     );
   }
-}
 
-class AlertWidget extends StatelessWidget {
-  final String menssage;
-  AlertWidget({required this.menssage, Key? key}) : super(key: key);
+  Widget _refreshButton() {
+    return IconButton(
+      icon: Icon(Icons.refresh),
+      onPressed: () => _mainPageBloc.add(const GetTestDataOnMainPageEvent(1)),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-        height: MediaQuery.of(context).size.height * 0.08,
-        width: MediaQuery.of(context).size.width,
-        child: Container(
-          padding: EdgeInsets.all(8),
-          decoration: BoxDecoration(
-              color: Colors.green, borderRadius: BorderRadius.circular(8)),
-          child: Center(
-            child: Text(
-              menssage,
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ));
+  void _showLocalSnackBar(BuildContext context, String message, int duration) {
+    final snackBar = SnackBar(
+        duration: Duration(seconds: duration),
+        dismissDirection: DismissDirection.startToEnd,
+        padding: EdgeInsets.zero,
+        content: AlertWidget(menssage: message));
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }
